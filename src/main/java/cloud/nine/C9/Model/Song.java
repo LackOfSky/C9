@@ -6,12 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Table(name = "Songs")
 public class Song {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter @Setter
     @JsonProperty("id")
-    private int id;
+    private long id;
 
     @Getter @Setter
     @Column(name = "song_name", nullable = false)
@@ -23,15 +24,16 @@ public class Song {
     @JsonProperty("author")
     private String author;
 
-    @Getter @Setter
-    @Column(name = "text", nullable = false)
-    @JsonProperty("text")
-    private String text;
+    @OneToOne(mappedBy = "song", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private SongData songData;
 
-    @Getter @Setter
-    @Column(name = "file", nullable = false)
-    @JsonProperty("file")
-    private byte[] file;
-
+    public Song() {}
+    public Song(long id, String name, String author, SongData songData){
+        this.id = id;
+        this.name = name;
+        this.author = author;
+        this.songData = songData;
+        songData.setSong(this);
+    }
 
 }

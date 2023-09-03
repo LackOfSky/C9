@@ -1,36 +1,38 @@
 package cloud.nine.C9.Service;
 
-import cloud.nine.C9.DTO.SongDTO;
+import cloud.nine.C9.DTO.SongTransfer;
 import cloud.nine.C9.Model.Song;
+import cloud.nine.C9.Model.SongData;
+import cloud.nine.C9.Repository.SongDataRepository;
 import cloud.nine.C9.Repository.SongRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Service
 public class SongService {
 
     private SongRepository songRepository;
-    private SongDTO songDTO;
+    private SongDataRepository songDataRepository;
+    private SongTransfer songTransfer;
 
-    public SongService(SongRepository songRepository) {
+    public SongService(SongRepository songRepository,SongDataRepository songDataRepository) {
         this.songRepository = songRepository;
-        songDTO = SongDTO.getInstance();
+        this.songDataRepository = songDataRepository;
+        songTransfer = SongTransfer.getInstance();
     }
 
     public boolean createSong(String Jsong) throws EntityNotFoundException, JsonProcessingException {
         songRepository.save(
-                getSong(songDTO.toObject(Jsong))
+                getSong(songTransfer.songToObject(Jsong))
         );
         return true;
     }
     public boolean updateSong(String Jsong) throws EntityNotFoundException, JsonProcessingException {
         songRepository.save(
-                getSong(songDTO.toObject(Jsong))
+                getSong(songTransfer.songToObject(Jsong))
         );
         return true;
     }
@@ -40,13 +42,16 @@ public class SongService {
         );
         return true;
     }
-    public Song readSong(long id) throws EntityNotFoundException {
-        return songRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Entity by id "+id+" is not exist")
+
+    public String readSongData(long id) throws EntityNotFoundException, JsonProcessingException {
+        return songTransfer.songDataToJSON(
+                songDataRepository.findById(id).orElseThrow(
+                        () -> new EntityNotFoundException("Entity by id "+id+" is not exist")
+                )
         );
     }
     public String readSongs() throws JsonProcessingException {
-        return songDTO.toJSON(
+        return songTransfer.songsToJSON(
                 (ArrayList<Song>) songRepository.findAll());
     }
 
@@ -57,5 +62,9 @@ public class SongService {
         }
         return song;
     }
-
+    public Song readSong(long id) throws EntityNotFoundException {
+        return songRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Entity by id "+id+" is not exist")
+        );
+    }
 }

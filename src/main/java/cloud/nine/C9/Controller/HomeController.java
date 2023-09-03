@@ -16,7 +16,6 @@ public class HomeController {
     @GetMapping("*")
         public String getSongs(Model model) throws JsonProcessingException {
             model.addAttribute(songService.readSongs());
-
-        return
+        return "home";
         }
 }
